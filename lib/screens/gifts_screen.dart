@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_screen/shared/screen_type.dart';
 import 'package:intl/intl.dart';
-
-enum Screen { LOGIN, PEOPLE, GIFTS, ADDGIFT, ADDPERSON }
 
 class GiftsScreen extends StatefulWidget {
   GiftsScreen(
@@ -39,7 +38,7 @@ class _GiftsScreenState extends State<GiftsScreen> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             //back to the people page using the function from main.dart
-            widget.goPeople(Screen.PEOPLE);
+            widget.goPeople(ScreenType.PEOPLE);
           },
         ),
         title: Text('Ideas - ${widget.currentPersonName}'),
@@ -49,7 +48,7 @@ class _GiftsScreenState extends State<GiftsScreen> {
             icon: Icon(Icons.logout),
             onPressed: () {
               //logout and return to login screen
-              widget.logout(Screen.LOGIN);
+              widget.logout(ScreenType.LOGIN);
             },
           )
         ],

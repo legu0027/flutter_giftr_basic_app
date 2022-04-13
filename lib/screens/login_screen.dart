@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-enum Screen { LOGIN, PEOPLE, GIFTS, ADDGIFT, ADDPERSON }
-
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key, required this.nav}) : super(key: key);
   Function nav;

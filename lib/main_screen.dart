@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_screen/shared/screen_type.dart';
 //Screens
 import '../screens/login_screen.dart';
 import '../screens/people_screen.dart';
 import '../screens/gifts_screen.dart';
 import '../screens/add_person_screen.dart';
 import '../screens/add_gift_screen.dart';
-
-enum Screen { LOGIN, PEOPLE, GIFTS, ADDGIFT, ADDPERSON }
 
 class MainPage extends StatefulWidget {
   //stateful widget for the main page container for all pages
@@ -19,7 +18,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  var currentScreen = Screen.LOGIN;
+  var currentScreen = ScreenType.LOGIN;
   int currentPerson = 0; //use for selecting person for gifts pages.
   String currentPersonName = '';
   DateTime currentPersonDOB = DateTime.now(); //right now as default
@@ -32,13 +31,13 @@ class _MainPageState extends State<MainPage> {
 
   Widget loadBody(Enum screen) {
     switch (screen) {
-      case Screen.LOGIN:
+      case ScreenType.LOGIN:
         return LoginScreen(nav: () {
           print('from login to people');
-          setState(() => currentScreen = Screen.PEOPLE);
+          setState(() => currentScreen = ScreenType.PEOPLE);
         });
         break;
-      case Screen.PEOPLE:
+      case ScreenType.PEOPLE:
         return PeopleScreen(
           goGifts: (int pid, String name) {
             //need another function for going to add/edit screen
@@ -46,7 +45,7 @@ class _MainPageState extends State<MainPage> {
             setState(() {
               currentPerson = pid;
               currentPersonName = name;
-              currentScreen = Screen.GIFTS;
+              currentScreen = ScreenType.GIFTS;
             });
           },
           goEdit: (int pid, String name, DateTime dob) {
@@ -56,46 +55,46 @@ class _MainPageState extends State<MainPage> {
               currentPerson = pid;
               currentPersonName = name;
               currentPersonDOB = dob;
-              currentScreen = Screen.ADDPERSON;
+              currentScreen = ScreenType.ADDPERSON;
             });
           },
           logout: (Enum screen) {
             //back to people
-            setState(() => currentScreen = Screen.LOGIN);
+            setState(() => currentScreen = ScreenType.LOGIN);
           },
         );
-      case Screen.GIFTS:
+      case ScreenType.GIFTS:
         return GiftsScreen(
             goPeople: (Enum screen) {
               //back to people
-              setState(() => currentScreen = Screen.PEOPLE);
+              setState(() => currentScreen = ScreenType.PEOPLE);
             },
             logout: (Enum screen) {
-              setState(() => currentScreen = Screen.LOGIN);
+              setState(() => currentScreen = ScreenType.LOGIN);
             },
             addGift: () {
               //delete gift idea and update state
-              setState(() => currentScreen = Screen.ADDGIFT);
+              setState(() => currentScreen = ScreenType.ADDGIFT);
             },
             currentPerson: currentPerson,
             currentPersonName: currentPersonName);
 
-      case Screen.ADDPERSON:
+      case ScreenType.ADDPERSON:
         return AddPersonScreen(
           nav: (Enum screen) {
             //back to people
-            setState(() => currentScreen = Screen.PEOPLE);
+            setState(() => currentScreen = ScreenType.PEOPLE);
           },
           currentPerson: currentPerson,
           currentPersonName: currentPersonName,
           personDOB: currentPersonDOB,
         );
-      case Screen.ADDGIFT:
+      case ScreenType.ADDGIFT:
         return AddGiftScreen(
           nav: (Enum screen) {
             //save the gift idea
             //go back to list of gifts
-            setState(() => currentScreen = Screen.GIFTS);
+            setState(() => currentScreen = ScreenType.GIFTS);
           },
           currentPerson: currentPerson,
           currentPersonName: currentPersonName,
@@ -103,7 +102,7 @@ class _MainPageState extends State<MainPage> {
       default:
         return LoginScreen(nav: () {
           print('from login to people');
-          setState(() => currentScreen = Screen.LOGIN);
+          setState(() => currentScreen = ScreenType.LOGIN);
         });
     }
   }

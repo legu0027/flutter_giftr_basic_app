@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_screen/shared/screen_type.dart';
 import 'package:intl/intl.dart';
-
-enum Screen { LOGIN, PEOPLE, GIFTS, ADDGIFT, ADDPERSON }
 
 class AddPersonScreen extends StatefulWidget {
   AddPersonScreen({
@@ -48,7 +47,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             //back to the people page using the function from main.dart
-            widget.nav(Screen.PEOPLE);
+            widget.nav(ScreenType.PEOPLE);
           },
         ),
         title: widget.currentPersonName.isEmpty
@@ -72,7 +71,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                   onPressed: () {
                     //use the API to save the new person
                     //go to the people screen
-                    widget.nav(Screen.PEOPLE);
+                    widget.nav(ScreenType.PEOPLE);
                   },
                 ),
                 SizedBox(width: 16.0),

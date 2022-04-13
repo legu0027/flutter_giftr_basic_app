@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_screen/shared/screen_type.dart';
 import 'package:intl/intl.dart';
-
-enum Screen { LOGIN, PEOPLE, GIFTS, ADDGIFT, ADDPERSON }
 
 class PeopleScreen extends StatefulWidget {
   PeopleScreen(
@@ -46,7 +45,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
             icon: Icon(Icons.logout),
             onPressed: () {
               //logout and return to login screen
-              widget.logout(Screen.LOGIN);
+              widget.logout(ScreenType.LOGIN);
             },
           )
         ],

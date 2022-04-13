@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-enum Screen { LOGIN, PEOPLE, GIFTS, ADDGIFT, ADDPERSON }
+import 'package:flutter_multi_screen/shared/screen_type.dart';
 
 class AddGiftScreen extends StatefulWidget {
   AddGiftScreen(
@@ -35,7 +34,7 @@ class _AddGiftScreenState extends State<AddGiftScreen> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             //back to the people page using the function from main.dart
-            widget.nav(Screen.GIFTS);
+            widget.nav(ScreenType.GIFTS);
           },
         ),
         title: Text('Add Gift - ${widget.currentPersonName}'),
@@ -59,7 +58,7 @@ class _AddGiftScreenState extends State<AddGiftScreen> {
                   //use the API to save the new gift for the person
                   //after confirming the save then
                   //go to the gifts screen
-                  widget.nav(Screen.GIFTS);
+                  widget.nav(ScreenType.GIFTS);
                 },
               ),
             ],
