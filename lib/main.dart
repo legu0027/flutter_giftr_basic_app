@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_multi_screen/screens/add_person_screen.dart';
+import 'package:GIFTR/screens/add_person_screen.dart';
 //Main page - screen with navigation logic
 import 'main_screen.dart';
 
@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     //put the things that are the same on every page here...
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: MainPage(),
     );
   }

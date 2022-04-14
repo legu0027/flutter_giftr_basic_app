@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_multi_screen/shared/screen_type.dart';
+import 'package:GIFTR/shared/screen_type.dart';
 import 'package:intl/intl.dart';
 
 class AddPersonScreen extends StatefulWidget {
