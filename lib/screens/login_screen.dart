@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Login to Giftr'),
+          title: Text('Login to Giftr - Fernando'),
           centerTitle: true,
         ),
         body: SafeArea(
