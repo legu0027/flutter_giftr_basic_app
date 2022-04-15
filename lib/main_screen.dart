@@ -1,5 +1,7 @@
+import 'package:GIFTR/data/http_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:GIFTR/shared/screen_type.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 //Screens
 import '../screens/login_screen.dart';
 import '../screens/people_screen.dart';
@@ -18,10 +20,39 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  String? JWTtoken = null;
+  var isLoggedIn;
+  var prefs;
   var currentScreen = ScreenType.LOGIN;
   int currentPerson = 0; //use for selecting person for gifts pages.
   String currentPersonName = '';
   DateTime currentPersonDOB = DateTime.now(); //right now as default
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    () async {
+      prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('JWTtoken');
+      if (token != null) {
+        setState(
+          () {
+            JWTtoken = token;
+            isLoggedIn = true;
+          },
+          //MAKE an API call to see if the token is actually valid
+        );
+      } else {
+        setState(
+          () {
+            JWTtoken = null;
+            isLoggedIn = false;
+          },
+        );
+      }
+    }();
+  }
 
   // to access variables from MainPage use `widget.`
   @override
@@ -35,6 +66,19 @@ class _MainPageState extends State<MainPage> {
         return LoginScreen(nav: () {
           print('from login to people');
           setState(() => currentScreen = ScreenType.PEOPLE);
+        }, login: (user) {
+          HttpHelper helper = HttpHelper();
+          setState(
+            () {
+              // JWTtoken = token;
+              // isLoggedIn = true;
+            },
+            //MAKE an API call to see if the token is actually valid
+          );
+          Future<Map> response = helper.loginUser(user);
+          response.then((obj) {
+            print('on loginScreen: $obj');
+          });
         });
         break;
       case ScreenType.PEOPLE:
@@ -103,6 +147,8 @@ class _MainPageState extends State<MainPage> {
         return LoginScreen(nav: () {
           print('from login to people');
           setState(() => currentScreen = ScreenType.LOGIN);
+        }, login: (user) {
+          print("default $user");
         });
     }
   }

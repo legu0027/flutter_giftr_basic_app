@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../data/http_helper.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({Key? key, required this.nav}) : super(key: key);
+  LoginScreen({Key? key, required this.nav, required this.login})
+      : super(key: key);
   Function nav;
-
+  Function login;
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -14,7 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   //create global ref key for the form
   final _formKey = GlobalKey<FormState>();
   //state value for user login
-  Map<String, dynamic> user = {'email': '', 'pass': ''};
+  Map<String, dynamic> user = {'email': '', 'password': ''};
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               //accept the response from the server and
                               //save the token in SharedPreferences
                               //go to the people screen
-                              widget.nav();
+                              widget.login(user);
+                              // widget.nav();
                             } else {
                               //form failed validation so exit
                               return;
