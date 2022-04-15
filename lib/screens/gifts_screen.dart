@@ -15,7 +15,7 @@ class GiftsScreen extends StatefulWidget {
   int currentPerson; //the id of the current person
   String currentPersonName;
   Function(Enum) goPeople;
-  Function(Enum) logout;
+  Function logout;
   Function addGift;
 
   @override

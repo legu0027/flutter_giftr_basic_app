@@ -12,15 +12,16 @@ class HttpHelper {
     'x-api-key': 'legu0027',
   };
 
-  Future<Map> loginUser(Map<String, dynamic> user) async {
-    print("loginUser");
-
-    //user to login
+  Future<Map<String, dynamic>> loginUser(Map<String, dynamic> user) async {
     Uri uri = Uri.http(_domain, _logUserPath);
     http.Response response =
         await http.post(uri, headers: _headers, body: jsonEncode(user));
 
     Map<String, dynamic> data = jsonDecode(response.body);
+    print('result from network: $data');
+    if (data.containsValue("errors")) {
+      throw Exception(data["errors"][0]["title"]);
+    }
     return data;
   }
 }

@@ -61,26 +61,12 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget loadBody(Enum screen) {
+    if (JWTtoken == null && !isLoggedIn) {
+      return _loginScreenBuilder();
+    }
     switch (screen) {
       case ScreenType.LOGIN:
-        return LoginScreen(nav: () {
-          print('from login to people');
-          setState(() => currentScreen = ScreenType.PEOPLE);
-        }, login: (user) {
-          HttpHelper helper = HttpHelper();
-          setState(
-            () {
-              // JWTtoken = token;
-              // isLoggedIn = true;
-            },
-            //MAKE an API call to see if the token is actually valid
-          );
-          Future<Map> response = helper.loginUser(user);
-          response.then((obj) {
-            print('on loginScreen: $obj');
-          });
-        });
-        break;
+        return _loginScreenBuilder();
       case ScreenType.PEOPLE:
         return PeopleScreen(
           goGifts: (int pid, String name) {
@@ -102,10 +88,7 @@ class _MainPageState extends State<MainPage> {
               currentScreen = ScreenType.ADDPERSON;
             });
           },
-          logout: (Enum screen) {
-            //back to people
-            setState(() => currentScreen = ScreenType.LOGIN);
-          },
+          logout: () => _execLogout(),
         );
       case ScreenType.GIFTS:
         return GiftsScreen(
@@ -113,9 +96,7 @@ class _MainPageState extends State<MainPage> {
               //back to people
               setState(() => currentScreen = ScreenType.PEOPLE);
             },
-            logout: (Enum screen) {
-              setState(() => currentScreen = ScreenType.LOGIN);
-            },
+            logout: () => _execLogout(),
             addGift: () {
               //delete gift idea and update state
               setState(() => currentScreen = ScreenType.ADDGIFT);
@@ -144,12 +125,38 @@ class _MainPageState extends State<MainPage> {
           currentPersonName: currentPersonName,
         );
       default:
-        return LoginScreen(nav: () {
-          print('from login to people');
-          setState(() => currentScreen = ScreenType.LOGIN);
-        }, login: (user) {
-          print("default $user");
-        });
+        return _loginScreenBuilder();
     }
+  }
+
+  LoginScreen _loginScreenBuilder() {
+    return LoginScreen(login: (user) async {
+      HttpHelper helper = HttpHelper();
+
+      //option 1
+      Map<String, dynamic> result = await helper.loginUser(user);
+      print('result from login: $result');
+
+      setState(() {
+        if (result.containsKey('data')) {
+          JWTtoken = result['data']['token'];
+          isLoggedIn = true;
+          currentScreen = ScreenType.PEOPLE;
+        } else if (result.containsKey('errors')) {
+          print("error in main: $result");
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(result['errors'][0]['title'])));
+          _execLogout();
+        }
+      });
+    });
+  }
+
+  void _execLogout() {
+    print('Logging out');
+    setState(() {
+      JWTtoken = null;
+      isLoggedIn = false;
+    });
   }
 }

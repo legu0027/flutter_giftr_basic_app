@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import '../data/http_helper.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({Key? key, required this.nav, required this.login})
-      : super(key: key);
-  Function nav;
+  LoginScreen({Key? key, required this.login}) : super(key: key);
+  // Function nav;
   Function login;
   @override
   State<LoginScreen> createState() => _LoginScreenState();

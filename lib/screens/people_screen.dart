@@ -12,7 +12,7 @@ class PeopleScreen extends StatefulWidget {
 
   Function(int, String) goGifts;
   Function(int, String, DateTime) goEdit;
-  Function(Enum) logout;
+  Function logout;
 
   @override
   State<PeopleScreen> createState() => _PeopleScreenState();
@@ -45,7 +45,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
             icon: Icon(Icons.logout),
             onPressed: () {
               //logout and return to login screen
-              widget.logout(ScreenType.LOGIN);
+              widget.logout();
             },
           )
         ],
