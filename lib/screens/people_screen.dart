@@ -1,6 +1,9 @@
+import 'package:GIFTR/data/http_helper.dart';
+import 'package:GIFTR/data/person.dart';
 import 'package:flutter/material.dart';
 import 'package:GIFTR/shared/screen_type.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PeopleScreen extends StatefulWidget {
   PeopleScreen(
@@ -19,22 +22,24 @@ class PeopleScreen extends StatefulWidget {
 }
 
 class _PeopleScreenState extends State<PeopleScreen> {
-  //state var list of people
-  //real app will be using the API to get the data
-  List<Map<String, dynamic>> people = [
-    {'id': 11, 'name': 'Bobby Singer', 'dob': DateTime(1947, 5, 4)},
-    {'id': 13, 'name': 'Crowley', 'dob': DateTime(1661, 12, 4)},
-    {'id': 12, 'name': 'Sam Winchester', 'dob': DateTime(1983, 5, 2)},
-    {'id': 10, 'name': 'Dean Winchester', 'dob': DateTime(1979, 1, 24)},
-  ];
+  List<Person> people = List.of({
+    Person('11', 'Bobby Singer', DateTime(1947, 5, 4)),
+    Person('13', 'Crowley', DateTime(1661, 12, 4)),
+    Person('12', 'Sam Winchester', DateTime(1983, 5, 2)),
+    Person('10', 'Dean Winchester', DateTime(1979, 1, 24)),
+  });
   DateTime today = DateTime.now();
 
   @override
+  void initState() {
+    super.initState();
+    _peopleList();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    //code here runs for every build
-    //someObjects.sort((a, b) => a.someProperty.compareTo(b.someProperty));
-    people.sort((a, b) => a['dob'].month.compareTo(b['dob'].month));
     //sort the people by the month of birth
+    people.sort((a, b) => a.dob.month.compareTo(b.dob.month));
 
     return Scaffold(
       appBar: AppBar(
@@ -55,11 +60,11 @@ class _PeopleScreenState extends State<PeopleScreen> {
         itemBuilder: (context, index) {
           return ListTile(
             //different background colors for birthdays that are past
-            tileColor: today.month > people[index]['dob'].month
+            tileColor: today.month > people[index].dob.month
                 ? Colors.black12
                 : Colors.white,
-            title: Text(people[index]['name']),
-            subtitle: Text(DateFormat.MMMd().format(people[index]['dob'])),
+            title: Text(people[index].name),
+            subtitle: Text(DateFormat.MMMd().format(people[index].dob)),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -68,9 +73,10 @@ class _PeopleScreenState extends State<PeopleScreen> {
                   onPressed: () {
                     print('edit person $index');
                     print('go to the add_person_screen');
-                    print(people[index]['dob']);
-                    widget.goEdit(people[index]['id'], people[index]['name'],
-                        people[index]['dob']);
+                    print(people[index].dob);
+                    // widget.goEdit(people[index].id,
+                    //     people[index].name,
+                    //     people[index].dob);
                   },
                 ),
                 IconButton(
@@ -78,7 +84,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
                   onPressed: () {
                     print('view gift ideas for person $index');
                     print('go to the gifts_screen');
-                    widget.goGifts(people[index]['id'], people[index]['name']);
+                    // widget.goGifts(people[index]['id'], people[index]['name']);
                   },
                 ),
               ],
@@ -95,5 +101,43 @@ class _PeopleScreenState extends State<PeopleScreen> {
         },
       ),
     );
+  }
+
+  void _peopleList() async {
+    SharedPreferences prefsIntance = await SharedPreferences.getInstance();
+    String? token = prefsIntance.getString('token');
+
+    //If token null, user is not logged
+    if (token == null) {
+      widget.logout();
+      return;
+    }
+
+    HttpHelper helper = HttpHelper();
+    var result = await helper.grabPeopleList(token);
+
+    if (result.containsKey('Errors')) {
+      //some error has ocurred
+
+      String message = '';
+
+      message = result['errors'][0]['title'];
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
+
+    //All good, show people list
+    _showPeople(Person.toList(result['data']));
+  }
+
+  void _showPeople(List<Person> list) async {
+    await Future<int>.delayed(
+      Duration(seconds: 2),
+      () => 12,
+    );
+
+    setState(() => people = list);
   }
 }

@@ -21,7 +21,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   String? JWTtoken = null;
-  var isLoggedIn;
+  bool isLoggedIn = false;
   var prefs;
   var currentScreen = ScreenType.LOGIN;
   int currentPerson = 0; //use for selecting person for gifts pages.
@@ -129,27 +129,27 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  LoginScreen _loginScreenBuilder() {
-    return LoginScreen(login: (user) async {
-      HttpHelper helper = HttpHelper();
+  LoginScreen _loginScreenBuilder() =>
+      LoginScreen(login: (user) => _executeLogin(user));
 
-      //option 1
-      Map<String, dynamic> result = await helper.loginUser(user);
-      print('result from login: $result');
+  void _executeLogin(Map<String, dynamic> user) async {
+    HttpHelper helper = HttpHelper();
 
-      setState(() {
-        if (result.containsKey('data')) {
-          JWTtoken = result['data']['token'];
-          isLoggedIn = true;
-          currentScreen = ScreenType.PEOPLE;
-        } else if (result.containsKey('errors')) {
-          print("error in main: $result");
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(result['errors'][0]['title'])));
-          _execLogout();
-        }
-      });
-    });
+    //option 1
+    Map<String, dynamic> result = await helper.loginUser(user);
+    print('result from login: $result');
+    if (result.containsKey('data')) {
+      JWTtoken = result['data']['token'];
+      isLoggedIn = true;
+      SharedPreferences prefsIntance = await SharedPreferences.getInstance();
+      prefsIntance.setString('token', result['data']['token']);
+      setState(() => currentScreen = ScreenType.PEOPLE);
+    } else if (result.containsKey('errors')) {
+      print("error in main: $result");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result['errors'][0]['title'])));
+      _execLogout();
+    }
   }
 
   void _execLogout() {
