@@ -5,6 +5,9 @@ import '../data/http_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
+
+  static String routeName = '/';
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -158,6 +161,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _navigateNext() {
-    Navigator.pushNamed(context, PeopleScreen.routeName);
+    Navigator.pushReplacementNamed(context, PeopleScreen.routeName);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:GIFTR/data/http_helper.dart';
+import 'package:GIFTR/data/person.dart';
 import 'package:flutter/material.dart';
 import 'package:GIFTR/shared/screen_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,15 +85,17 @@ class _MainPageState extends State<MainPage> {
             currentPersonName: currentPersonName);
 
       case ScreenType.ADDPERSON:
-        return AddPersonScreen(
-          nav: (Enum screen) {
-            //back to people
-            setState(() => currentScreen = ScreenType.PEOPLE);
-          },
-          currentPerson: currentPerson,
-          currentPersonName: currentPersonName,
-          personDOB: currentPersonDOB,
-        );
+        return LoginScreen();
+      // return AddPersonScreen(
+      // person: Person.create(),
+      // nav: (Enum screen) {
+      //   //back to people
+      //   setState(() => currentScreen = ScreenType.PEOPLE);
+      // },
+      // currentPerson: currentPerson,
+      // currentPersonName: currentPersonName,
+      // personDOB: currentPersonDOB,
+      // );
       case ScreenType.ADDGIFT:
         return AddGiftScreen(
           nav: (Enum screen) {

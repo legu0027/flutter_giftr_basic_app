@@ -1,3 +1,4 @@
+import 'package:GIFTR/data/person.dart';
 import 'package:GIFTR/screens/login_screen.dart';
 import 'package:GIFTR/screens/people_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +21,24 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       // home: MainPage(),
-      initialRoute: '/',
+      initialRoute: LoginScreen.routeName,
       routes: {
-        '/': ((context) => LoginScreen()),
+        LoginScreen.routeName: ((context) => LoginScreen()),
         PeopleScreen.routeName: ((context) => const PeopleScreen()),
+        // AddPersonScreen.routeName: ((context) => const AddPersonScreen()),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == AddPersonScreen.routeName) {
+          final person = settings.arguments as Person;
+          return MaterialPageRoute(builder: (context) {
+            return AddPersonScreen(person: person);
+          });
+        }
+        assert(false, 'Need to implement ${settings.name}');
+        return null;
       },
     );
   }
+
+  _validateToken() {}
 }

@@ -1,20 +1,17 @@
+import 'package:GIFTR/data/giftr_exception.dart';
+import 'package:GIFTR/data/http_helper.dart';
+import 'package:GIFTR/data/person.dart';
+import 'package:GIFTR/screens/login_screen.dart';
+import 'package:GIFTR/screens/people_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:GIFTR/shared/screen_type.dart';
 import 'package:intl/intl.dart';
 
 class AddPersonScreen extends StatefulWidget {
-  AddPersonScreen({
-    Key? key,
-    required this.nav,
-    required this.currentPerson,
-    required this.currentPersonName,
-    required this.personDOB,
-  }) : super(key: key);
+  const AddPersonScreen({Key? key, required this.person}) : super(key: key);
 
-  Function nav;
-  String currentPersonName; // could be empty string
-  int currentPerson; //could be zero
-  DateTime personDOB;
+  final Person person;
+  static String routeName = '/addPerson';
 
   @override
   State<AddPersonScreen> createState() => _AddPersonScreenState();
@@ -27,16 +24,18 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
   //create global ref key for the form
   final _formKey = GlobalKey<FormState>();
 
-  //state value for user login
-  Map<String, dynamic> person = {'name': '', 'dob': null};
+  Person? person;
 
   @override
   void initState() {
     super.initState();
-    person['name'] = widget.currentPersonName;
-    person['dob'] = widget.personDOB;
-    nameController.text = person['name'];
-    dobController.text = DateFormat.yMMMd().format(person['dob']);
+
+    person = widget.person;
+
+    nameController.text = person?.name ?? '';
+    if (person?.dob != null) {
+      dobController.text = DateFormat.yMMMd().format(person!.dob);
+    }
   }
 
   @override
@@ -46,49 +45,56 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            //back to the people page using the function from main.dart
-            widget.nav(ScreenType.PEOPLE);
+            Navigator.pop(context);
           },
         ),
-        title: widget.currentPersonName.isEmpty
+        title: (person?.name.isEmpty ?? true)
             ? Text('Add Person')
-            : Text('Edit ${widget.currentPersonName}'),
+            : Text('Edit ${person!.name}'),
         centerTitle: true,
       ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            _buildName(),
-            SizedBox(height: 16),
-            _buildDOB(),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  child: Text('Save'),
-                  onPressed: () {
-                    //use the API to save the new person
-                    //go to the people screen
-                    widget.nav(ScreenType.PEOPLE);
-                  },
-                ),
-                SizedBox(width: 16.0),
-                if (widget.currentPerson > 0)
+          child: Form(
+            key: _formKey,
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              _buildName(),
+              SizedBox(height: 16),
+              _buildDOB(),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.red,
-                    ),
-                    child: Text('Delete'),
+                    child: Text('Save'),
                     onPressed: () {
-                      //delete the selected person
-                      //needs confirmation dialog
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        _savePerson();
+                      } else {
+                        //form failed validation so exit
+                        return;
+                      }
                     },
                   ),
-              ],
-            ),
-          ]),
+                  SizedBox(width: 16.0),
+                  if (person?.id.isNotEmpty ?? false)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.red,
+                      ),
+                      child: Text('Delete'),
+                      onPressed: () {
+                        //delete the selected person
+                        //needs confirmation dialog
+                      },
+                    ),
+                ],
+              ),
+            ]),
+          ),
         ),
       ),
     );
@@ -129,8 +135,9 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       },
       onSaved: (String? value) {
         //save the email value in the state variable
+        print("seting the name: $value");
         setState(() {
-          person['name'] = value;
+          person?.name = value!;
         });
       },
     );
@@ -146,8 +153,8 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       (value) {
         setState(
           () {
-            person['dob'] = value;
-            dobController.text = DateFormat.yMMMd().format(person['dob']);
+            person?.dob = value!;
+            dobController.text = DateFormat.yMMMd().format(value!);
           },
         );
       },
@@ -165,16 +172,41 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       validator: (String? value) {
         if (value == null || value.isEmpty) {
           return 'Please enter a valid date';
-          //becomes the new errorText value
         }
-        return null; //means all is good
+        return null;
       },
       onSaved: (String? value) {
-        //save the email value in the state variable
         setState(() {
-          person['dob'] = value;
+          var newDob = DateFormat.yMMMd().parse(value!);
+          print("setting dob: $newDob");
+          person?.dob = newDob;
         });
       },
     );
+  }
+
+  void _savePerson() async {
+    if (person == null || person!.id.isEmpty) {
+      var networkCall = HttpHelper();
+      try {
+        var result = await networkCall.savePerson(person!);
+        print("person was saved: ${result.id}");
+        Navigator.pop(context, result);
+      } catch (e) {
+        var text;
+        if (e is GiftrException) {
+          text = Text(e.message);
+        } else {
+          text = Text(e.toString());
+        }
+        _logout();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: text));
+      }
+    }
+  }
+
+  void _logout() {
+    Navigator.pushNamedAndRemoveUntil(
+        context, LoginScreen.routeName, (route) => true);
   }
 }

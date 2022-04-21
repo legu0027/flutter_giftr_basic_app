@@ -1,5 +1,7 @@
+import 'package:GIFTR/data/giftr_exception.dart';
 import 'package:GIFTR/data/http_helper.dart';
 import 'package:GIFTR/data/person.dart';
+import 'package:GIFTR/screens/add_person_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:GIFTR/shared/screen_type.dart';
 import 'package:intl/intl.dart';
@@ -15,29 +17,12 @@ class PeopleScreen extends StatefulWidget {
 }
 
 class _PeopleScreenState extends State<PeopleScreen> {
-  List<Person> people = List.of({
-    Person('11', 'Bobby Singer', DateTime(1947, 5, 4)),
-    Person('13', 'Crowley', DateTime(1661, 12, 4)),
-    Person('12', 'Sam Winchester', DateTime(1983, 5, 2)),
-    Person('10', 'Dean Winchester', DateTime(1979, 1, 24)),
-  });
+  List<Person> people = List.empty();
   DateTime today = DateTime.now();
-  String? JWTtoken;
   @override
   void initState() {
     super.initState();
-
-    () async {
-      var prefs = await SharedPreferences.getInstance();
-      JWTtoken = prefs.getString('token');
-      print("this is the token received: $JWTtoken");
-
-      if (JWTtoken == null) {
-        Navigator.pop(context);
-      } else {
-        _peopleList();
-      }
-    }();
+    _peopleList();
   }
 
   @override
@@ -54,8 +39,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              //logout and return to login screen
-              // widget.logout();
+              _logout();
             },
           )
         ],
@@ -76,12 +60,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
                 IconButton(
                   icon: Icon(Icons.edit, color: Colors.grey),
                   onPressed: () {
-                    print('edit person $index');
-                    print('go to the add_person_screen');
-                    print(people[index].dob);
-                    // widget.goEdit(people[index].id,
-                    //     people[index].name,
-                    //     people[index].dob);
+                    _goEdit(people[index]);
                   },
                 ),
                 IconButton(
@@ -100,49 +79,69 @@ class _PeopleScreenState extends State<PeopleScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          //go to the add gift page
-          DateTime now = DateTime.now();
-          // widget.goEdit(0, '', now);
+          _goAdd();
         },
       ),
     );
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    print("people dispose");
+    people = List.empty();
+  }
+
   void _peopleList() async {
-    SharedPreferences prefsIntance = await SharedPreferences.getInstance();
-    String? token = prefsIntance.getString('token');
-
-    //If token null, user is not logged
-    if (token == null) {
-      // widget.logout();
-      Navigator.pop(context);
-      return;
-    }
-
     HttpHelper helper = HttpHelper();
-    var result = await helper.grabPeopleList(token);
-
-    if (result.containsKey('Errors')) {
-      //some error has ocurred
-
-      String message = '';
-      message = result['errors'][0]['title'];
+    try {
+      var people = await helper.grabPeopleList();
+      _showPeople(people);
+    } catch (e) {
+      String message = (e as GiftrException?)?.message ?? e.toString();
 
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(message)));
-      return;
     }
-
-    //All good, show people list
-    _showPeople(Person.toList(result['data']));
   }
 
   void _showPeople(List<Person> list) async {
-    await Future<int>.delayed(
-      Duration(seconds: 2),
-      () => 12,
-    );
+    // await Future<int>.delayed(
+    //   Duration(seconds: 2),
+    //   () => 12,
+    // );
 
     setState(() => people = list);
+  }
+
+  void _goAdd() {
+    var result = Navigator.pushNamed(context, AddPersonScreen.routeName,
+        arguments: Person.create());
+
+    () async {
+      var didPersonAdd = await result;
+      print('Person added result: $didPersonAdd');
+      if (didPersonAdd != null) {
+        _peopleList();
+      }
+    }();
+  }
+
+  void _goEdit(Person person) {
+    var result = Navigator.pushNamed(context, AddPersonScreen.routeName,
+        arguments: person);
+
+    () async {
+      var didPersonEdit = await result;
+      print('Edited person result: $didPersonEdit');
+      if (didPersonEdit != null) {
+        _peopleList();
+      }
+    }();
+  }
+
+  void _logout() {
+    Navigator.pop(context);
   }
 }
