@@ -1,34 +1,47 @@
+import 'package:GIFTR/data/gift.dart';
+import 'package:GIFTR/data/giftr_exception.dart';
+import 'package:GIFTR/data/http_helper.dart';
+import 'package:GIFTR/data/person.dart';
+import 'package:GIFTR/screens/add_gift_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:GIFTR/shared/screen_type.dart';
 import 'package:intl/intl.dart';
 
 class GiftsScreen extends StatefulWidget {
-  GiftsScreen(
-      {Key? key,
-      required this.goPeople,
-      required this.logout,
-      required this.addGift,
-      required this.currentPerson,
-      required this.currentPersonName})
-      : super(key: key);
+  const GiftsScreen({
+    Key? key,
+    required this.person,
+    required this.manageExceptions,
+  }) : super(key: key);
 
-  int currentPerson; //the id of the current person
-  String currentPersonName;
-  Function(Enum) goPeople;
-  Function(Enum) logout;
-  Function addGift;
+  static const routeName = '/gifts';
+
+  final Function manageExceptions;
+  final Person person;
 
   @override
   State<GiftsScreen> createState() => _GiftsScreenState();
 }
 
 class _GiftsScreenState extends State<GiftsScreen> {
-  List<Map<String, dynamic>> gifts = [
-    {'id': 123, 'name': 'Gift Idea 1', 'store': 'Some place', 'price': 12.85},
-    {'id': 456, 'name': 'Gift Idea 2', 'store': 'Some place', 'price': 2.99},
-    {'id': 789, 'name': 'Gift Idea 3', 'store': 'Some place', 'price': 4.00},
-    {'id': 159, 'name': 'Gift Idea 4', 'store': 'Some place', 'price': 55.50},
-  ];
+  List<Gift> gifts = List.empty();
+
+  @override
+  void initState() {
+    super.initState();
+    _grabGiftList();
+  }
+
+  void _grabGiftList() async {
+    try {
+      HttpHelper networkCall = HttpHelper();
+      var result = await networkCall.grabGifts(widget.person.id);
+      setState(() {
+        gifts = result;
+      });
+    } catch (e) {
+      widget.manageExceptions(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,17 +51,17 @@ class _GiftsScreenState extends State<GiftsScreen> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             //back to the people page using the function from main.dart
-            widget.goPeople(ScreenType.PEOPLE);
+            Navigator.pop(context);
           },
         ),
-        title: Text('Ideas - ${widget.currentPersonName}'),
+        title: Text('Ideas - ${widget.person.name}'),
         centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
               //logout and return to login screen
-              widget.logout(ScreenType.LOGIN);
+              widget.manageExceptions(GiftrException.INVALID_TOKEN);
             },
           )
         ],
@@ -59,27 +72,16 @@ class _GiftsScreenState extends State<GiftsScreen> {
           itemCount: gifts.length,
           itemBuilder: (context, index) {
             return ListTile(
-              title: Text(gifts[index]['name']),
-              //NumberFormat.simpleCurrency({String? locale, String? name, int? decimalDigits})
-              //gifts[index]['price'].toStringAsFixed(2)
+              title: Text(gifts[index].name),
               subtitle: Text(
-                  '${gifts[index]['store']} - ${NumberFormat.simpleCurrency(locale: 'en_CA', decimalDigits: 2).format(gifts[index]['price'])}'),
+                  '${gifts[index].store.name} - ${NumberFormat.simpleCurrency(locale: 'en_CA', decimalDigits: 2).format(gifts[index].price)}'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     icon: Icon(Icons.delete, color: Colors.redAccent),
                     onPressed: () {
-                      print('delete ${gifts[index]['name']}');
-                      //remove from gifts with setState
-                      setState(() {
-                        // list.where(func).toList()
-                        // is like JS array.filter(func)
-                        //real app needs to use API to do this.
-                        gifts = gifts
-                            .where((gift) => gift['id'] != gifts[index]['id'])
-                            .toList();
-                      });
+                      _wantToDeleteGift(gifts[index]);
                     },
                   ),
                 ],
@@ -91,10 +93,70 @@ class _GiftsScreenState extends State<GiftsScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          //go to the add gift page
-          widget.addGift();
+          _navigateToAddNewGift();
         },
       ),
+    );
+  }
+
+  void _navigateToAddNewGift() {
+    print("want to add new gift");
+    var result = Navigator.pushNamed(context, AddGiftScreen.routeName,
+        arguments: widget.person);
+
+    () async {
+      var didAddGift = await result;
+      print('Gift added: $didAddGift');
+      if (didAddGift != null && didAddGift is Gift) {
+        setState(() {
+          gifts.add(didAddGift);
+        });
+      }
+    }();
+  }
+
+  void _wantToDeleteGift(Gift gift) {
+    showDialog(
+        context: context,
+        builder: (_) => _buildConfirmationDialogForDeletion(gift),
+        barrierDismissible: true);
+  }
+
+  void _executeDeletion(Gift toDelete) async {
+    try {
+      var networkCall = HttpHelper();
+      var result = await networkCall.deleteGift(widget.person.id, toDelete);
+
+      if (result.id == toDelete.id) {
+        setState(() {
+          gifts = gifts.where((gift) => gift.id != result.id).toList();
+        });
+      }
+    } catch (e) {
+      widget.manageExceptions(e);
+    }
+  }
+
+  AlertDialog _buildConfirmationDialogForDeletion(Gift gift) {
+    return AlertDialog(
+      title: Text('Confirmation'),
+      content: Text('Are you sure?'),
+      actions: [
+        ElevatedButton(
+          child: Text('Yes'),
+          onPressed: () {
+            Navigator.pop(context);
+            _executeDeletion(gift);
+          },
+        ),
+        ElevatedButton(
+          child: Text('No'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
+      elevation: 24,
     );
   }
 }

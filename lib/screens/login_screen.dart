@@ -1,8 +1,14 @@
+import 'package:GIFTR/data/giftr_exception.dart';
+import 'package:GIFTR/screens/people_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../data/http_helper.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({Key? key, required this.nav}) : super(key: key);
-  Function nav;
+  LoginScreen({Key? key, required this.manageExceptions}) : super(key: key);
+
+  final Function manageExceptions;
+  static const String routeName = '/';
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -14,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   //create global ref key for the form
   final _formKey = GlobalKey<FormState>();
   //state value for user login
-  Map<String, dynamic> user = {'email': '', 'pass': ''};
+  Map<String, dynamic> user = {'email': '', 'password': ''};
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text('Login'),
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              //validation has been passed so we can save the form
                               _formKey.currentState!.save();
-                              //triggers the onSave in each form field
-                              //call the API function to post the data
-                              //accept the response from the server and
-                              //save the token in SharedPreferences
-                              //go to the people screen
-                              widget.nav();
+                              _executeLogin(user);
                             } else {
                               //form failed validation so exit
                               return;
@@ -135,5 +135,21 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       },
     );
+  }
+
+  void _executeLogin(Map<String, dynamic> user) async {
+    HttpHelper helper = HttpHelper();
+    try {
+      bool wasSuccesful = await helper.loginUser(user);
+      if (wasSuccesful) {
+        _navigateNext();
+      }
+    } catch (e) {
+      widget.manageExceptions(e);
+    }
+  }
+
+  void _navigateNext() {
+    Navigator.pushReplacementNamed(context, PeopleScreen.routeName);
   }
 }
