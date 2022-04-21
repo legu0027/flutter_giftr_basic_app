@@ -1,6 +1,7 @@
 import 'package:GIFTR/data/giftr_exception.dart';
 import 'package:GIFTR/data/http_helper.dart';
 import 'package:GIFTR/data/person.dart';
+import 'package:GIFTR/screens/gifts_screen.dart';
 import 'package:GIFTR/screens/login_screen.dart';
 import 'package:GIFTR/screens/people_screen.dart';
 import 'package:flutter/material.dart';
@@ -87,8 +88,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                       ),
                       child: Text('Delete'),
                       onPressed: () {
-                        //delete the selected person
-                        //needs confirmation dialog
+                        _wantToDeletePerson();
                       },
                     ),
                 ],
@@ -186,27 +186,85 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
   }
 
   void _savePerson() async {
-    if (person == null || person!.id.isEmpty) {
+    try {
       var networkCall = HttpHelper();
-      try {
+      if (person == null || person!.id.isEmpty) {
         var result = await networkCall.savePerson(person!);
-        print("person was saved: ${result.id}");
-        Navigator.pop(context, result);
-      } catch (e) {
-        var text;
-        if (e is GiftrException) {
-          text = Text(e.message);
-        } else {
-          text = Text(e.toString());
-        }
-        _logout();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: text));
+        _backToPeople(result);
+      } else if (person!.id.isNotEmpty) {
+        var result = await networkCall.updatePerson(person!);
+        _backToPeople(result);
+      }
+    } catch (e) {
+      //TODO: evaluate different kinds of errors
+      if (e is GiftrException) {
+        _logout(e);
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
 
-  void _logout() {
+  void _backToPeople(Person? person) {
+    Navigator.pop(context, person);
+  }
+
+  void _logout(GiftrException? exception) {
     Navigator.pushNamedAndRemoveUntil(
-        context, LoginScreen.routeName, (route) => true);
+        context,
+        LoginScreen.routeName,
+        // (route) => route.settings.name == LoginScreen.routeName,
+        (route) => true,
+        arguments: exception);
+  }
+
+  void _wantToDeletePerson() {
+    //1 show confirmation dialog
+    showDialog(
+        context: context,
+        builder: (_) => _buildConfirmationDialogForDeletion(),
+        barrierDismissible: true);
+    //2. if yes, execute deletion
+    //3. if no, do nothing
+  }
+
+  void _executeDeletion() async {
+    try {
+      var networkCall = HttpHelper();
+      var result = await networkCall.deletePerson(person!);
+      _backToPeople(result);
+    } catch (e) {
+      //TODO: evaluate different kinds of errors
+      if (e is GiftrException) {
+        e.shouldLogout ? _logout(e) : null;
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
+  }
+
+  AlertDialog _buildConfirmationDialogForDeletion() {
+    return AlertDialog(
+      title: Text('Confirmation'),
+      content: Text('Are you sure?'),
+      actions: [
+        ElevatedButton(
+          child: Text('Yes'),
+          onPressed: () {
+            Navigator.pop(context);
+            _executeDeletion();
+          },
+        ),
+        ElevatedButton(
+          child: Text('No'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
+      elevation: 24,
+    );
   }
 }

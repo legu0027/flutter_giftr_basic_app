@@ -11,4 +11,13 @@ extension GiftrExceptionExtension on GiftrException {
         return '';
     }
   }
+
+  bool get shouldLogout {
+    switch (this) {
+      case GiftrException.INVALID_TOKEN:
+        return true;
+      default:
+        return false;
+    }
+  }
 }

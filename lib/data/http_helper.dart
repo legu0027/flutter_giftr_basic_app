@@ -48,6 +48,27 @@ class HttpHelper {
     return withId;
   }
 
+  Future<Person> updatePerson(Person person) async {
+    Uri uri = Uri.http(_domain, "$_peoplePath/${person.id}");
+    _headers['Authorization'] = 'Bearer ${await getToken()}';
+    http.Response response = await http.patch(uri,
+        headers: _headers, body: jsonEncode(person.toJson()));
+
+    Map<String, dynamic> data = jsonDecode(response.body);
+    Person patched = Person.fromJson(data['data']);
+    return patched;
+  }
+
+  Future<Person> deletePerson(Person person) async {
+    Uri uri = Uri.http(_domain, "$_peoplePath/${person.id}");
+    _headers['Authorization'] = 'Bearer ${await getToken()}';
+    http.Response response = await http.delete(uri, headers: _headers);
+
+    Map<String, dynamic> data = jsonDecode(response.body);
+    Person deleted = Person.fromJson(data['data']);
+    return deleted;
+  }
+
   Future<String> getToken() async {
     var prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -60,7 +81,7 @@ class HttpHelper {
     Uri uri = Uri.http(_domain, _validateTokenPath);
     _headers['Authorization'] = 'Bearer ${token}';
     http.Response response = await http.get(uri, headers: _headers);
-
+    // try {} catch (e) {}
     Map<String, dynamic> data = jsonDecode(response.body);
     if (response.statusCode == 400 || data['errors'] != null) {
       throw GiftrException.INVALID_TOKEN;
