@@ -1,1 +1,0 @@
-enum ScreenType { LOGIN, PEOPLE, GIFTS, ADDGIFT, ADDPERSON }

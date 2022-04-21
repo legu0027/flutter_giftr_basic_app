@@ -4,7 +4,6 @@ import 'package:GIFTR/data/gift.dart';
 import 'package:GIFTR/data/http_helper.dart';
 import 'package:GIFTR/data/person.dart';
 import 'package:flutter/material.dart';
-import 'package:GIFTR/shared/screen_type.dart';
 
 class AddGiftScreen extends StatefulWidget {
   const AddGiftScreen(

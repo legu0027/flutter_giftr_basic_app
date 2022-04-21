@@ -5,7 +5,6 @@ import 'package:GIFTR/screens/gifts_screen.dart';
 import 'package:GIFTR/screens/login_screen.dart';
 import 'package:GIFTR/screens/people_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:GIFTR/shared/screen_type.dart';
 import 'package:intl/intl.dart';
 
 class AddPersonScreen extends StatefulWidget {
