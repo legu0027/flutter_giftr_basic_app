@@ -2,15 +2,19 @@ import 'package:GIFTR/data/giftr_exception.dart';
 import 'package:GIFTR/data/http_helper.dart';
 import 'package:GIFTR/data/person.dart';
 import 'package:GIFTR/screens/add_person_screen.dart';
+import 'package:GIFTR/screens/gifts_screen.dart';
+import 'package:GIFTR/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:GIFTR/shared/screen_type.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PeopleScreen extends StatefulWidget {
-  const PeopleScreen({Key? key}) : super(key: key);
+  const PeopleScreen({Key? key, required this.manageExceptions})
+      : super(key: key);
 
   static const routeName = '/people';
+  final Function manageExceptions;
 
   @override
   State<PeopleScreen> createState() => _PeopleScreenState();
@@ -39,7 +43,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              _logout();
+              widget.manageExceptions(GiftrException.INVALID_TOKEN);
             },
           )
         ],
@@ -66,9 +70,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
                 IconButton(
                   icon: Icon(Icons.lightbulb, color: Colors.amber),
                   onPressed: () {
-                    print('view gift ideas for person $index');
-                    print('go to the gifts_screen');
-                    // widget.goGifts(people[index]['id'], people[index]['name']);
+                    _goToGiftList(people[index]);
                   },
                 ),
               ],
@@ -85,12 +87,9 @@ class _PeopleScreenState extends State<PeopleScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    print("people dispose");
-    people = List.empty();
+  void _goToGiftList(Person person) {
+    var result =
+        Navigator.pushNamed(context, GiftsScreen.routeName, arguments: person);
   }
 
   void _peopleList() async {
@@ -99,19 +98,11 @@ class _PeopleScreenState extends State<PeopleScreen> {
       var people = await helper.grabPeopleList();
       _showPeople(people);
     } catch (e) {
-      String message = (e as GiftrException?)?.message ?? e.toString();
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
+      widget.manageExceptions(e);
     }
   }
 
   void _showPeople(List<Person> list) async {
-    // await Future<int>.delayed(
-    //   Duration(seconds: 2),
-    //   () => 12,
-    // );
-
     setState(() => people = list);
   }
 
@@ -139,9 +130,5 @@ class _PeopleScreenState extends State<PeopleScreen> {
         _peopleList();
       }
     }();
-  }
-
-  void _logout() {
-    Navigator.pop(context);
   }
 }

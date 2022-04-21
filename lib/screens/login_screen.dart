@@ -1,12 +1,14 @@
+import 'package:GIFTR/data/giftr_exception.dart';
 import 'package:GIFTR/screens/people_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/http_helper.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({Key? key}) : super(key: key);
+  LoginScreen({Key? key, required this.manageExceptions}) : super(key: key);
 
-  static String routeName = '/';
+  final Function manageExceptions;
+  static const String routeName = '/';
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -46,15 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text('Login'),
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              //validation has been passed so we can save the form
                               _formKey.currentState!.save();
-                              //triggers the onSave in each form field
-                              //call the API function to post the data
-                              //accept the response from the server and
-                              //save the token in SharedPreferences
-                              //go to the people screen
                               _executeLogin(user);
-                              // widget.nav();
                             } else {
                               //form failed validation so exit
                               return;
@@ -145,18 +140,12 @@ class _LoginScreenState extends State<LoginScreen> {
   void _executeLogin(Map<String, dynamic> user) async {
     HttpHelper helper = HttpHelper();
     try {
-      Map<String, dynamic> result = await helper.loginUser(user);
-      if (result.containsKey('data')) {
-        String JWTtoken = result['data']['token'];
-        var pref = await SharedPreferences.getInstance();
-        pref.setString('token', result['data']['token']);
+      bool wasSuccesful = await helper.loginUser(user);
+      if (wasSuccesful) {
         _navigateNext();
-      } else if (result.containsKey('errors')) {
-        throw Exception(Text(result['errors'][0]['title']));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
+      widget.manageExceptions(e);
     }
   }
 

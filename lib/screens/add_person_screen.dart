@@ -9,9 +9,12 @@ import 'package:GIFTR/shared/screen_type.dart';
 import 'package:intl/intl.dart';
 
 class AddPersonScreen extends StatefulWidget {
-  const AddPersonScreen({Key? key, required this.person}) : super(key: key);
+  const AddPersonScreen(
+      {Key? key, required this.person, required this.manageExceptions})
+      : super(key: key);
 
   final Person person;
+  final Function manageExceptions;
   static String routeName = '/addPerson';
 
   @override
@@ -46,7 +49,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            _backToPeople();
           },
         ),
         title: (person?.name.isEmpty ?? true)
@@ -196,27 +199,12 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
         _backToPeople(result);
       }
     } catch (e) {
-      //TODO: evaluate different kinds of errors
-      if (e is GiftrException) {
-        _logout(e);
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.toString())));
-      }
+      widget.manageExceptions(e);
     }
   }
 
-  void _backToPeople(Person? person) {
+  void _backToPeople([Person? person]) {
     Navigator.pop(context, person);
-  }
-
-  void _logout(GiftrException? exception) {
-    Navigator.pushNamedAndRemoveUntil(
-        context,
-        LoginScreen.routeName,
-        // (route) => route.settings.name == LoginScreen.routeName,
-        (route) => true,
-        arguments: exception);
   }
 
   void _wantToDeletePerson() {
@@ -235,13 +223,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       var result = await networkCall.deletePerson(person!);
       _backToPeople(result);
     } catch (e) {
-      //TODO: evaluate different kinds of errors
-      if (e is GiftrException) {
-        e.shouldLogout ? _logout(e) : null;
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.toString())));
-      }
+      widget.manageExceptions(e);
     }
   }
 

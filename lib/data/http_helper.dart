@@ -1,3 +1,4 @@
+import 'package:GIFTR/data/gift.dart';
 import 'package:GIFTR/data/giftr_exception.dart';
 import 'package:GIFTR/data/person.dart';
 import 'package:http/http.dart' as http;
@@ -17,13 +18,25 @@ class HttpHelper {
     'x-api-key': 'legu0027',
   };
 
-  Future<Map<String, dynamic>> loginUser(Map<String, dynamic> user) async {
+  Future<bool> loginUser(Map<String, dynamic> user) async {
     Uri uri = Uri.http(_domain, _logUserPath);
     http.Response response =
         await http.post(uri, headers: _headers, body: jsonEncode(user));
 
     Map<String, dynamic> data = jsonDecode(response.body);
-    return data;
+
+    if (response.statusCode == 401 && data['errors'] != null) {
+      throw GiftrException.INCORRECT_USERNAME_PASSWORD;
+    }
+
+    if (data.containsKey('data')) {
+      String JWTtoken = data['data']['token'];
+      var pref = await SharedPreferences.getInstance();
+      pref.setString('token', JWTtoken);
+      return true;
+    }
+
+    return false;
   }
 
   Future<List<Person>> grabPeopleList() async {
@@ -33,6 +46,25 @@ class HttpHelper {
     Map<String, dynamic> data = jsonDecode(response.body);
 
     return Person.toList(data['data']);
+  }
+
+  Future<List<Gift>> grabGifts(String personId) async {
+    Uri uri = Uri.http(_domain, "$_peoplePath/${personId}");
+    _headers['Authorization'] = 'Bearer ${await getToken()}';
+    http.Response response = await http.get(uri, headers: _headers);
+    Map<String, dynamic> data = jsonDecode(response.body);
+
+    return Gift.toList(data['data']['gifts']);
+  }
+
+  Future<Gift> deleteGift(String personId, Gift gift) async {
+    Uri uri = Uri.http(_domain, "$_peoplePath/$personId/gifts/${gift.id}");
+    _headers['Authorization'] = 'Bearer ${await getToken()}';
+    http.Response response = await http.delete(uri, headers: _headers);
+
+    Map<String, dynamic> data = jsonDecode(response.body);
+    Gift deleted = Gift.fromJson(data['data']);
+    return deleted;
   }
 
   Future<Person> savePerson(Person person) async {
