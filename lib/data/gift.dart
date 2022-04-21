@@ -11,11 +11,15 @@ class Gift {
   }
 
   static Gift fromJson(Map<String, dynamic> map) {
+    if (map['store'] == null) {
+      return Gift(map['_id'], map['name'], map['price'], _Store.empty());
+    }
     return Gift(
         map['_id'], map['name'], map['price'], _Store.fromJson(map['store']));
   }
 
-  Map<String, dynamic> toJson() => {'name': name, 'price': price};
+  Map<String, dynamic> toJson() =>
+      {'name': name, 'price': price, 'store': store.toJson()};
 
   static List<Gift> toList(List<dynamic> list) {
     return list.map((element) => fromJson(element)).toList();
@@ -34,4 +38,6 @@ class _Store {
   static _Store fromJson(Map<String, dynamic> map) {
     return _Store(map['name'], map['productURL']);
   }
+
+  Map<String, dynamic> toJson() => {'name': name, 'productURL': url};
 }

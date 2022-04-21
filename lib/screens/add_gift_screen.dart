@@ -1,17 +1,18 @@
+import 'dart:ffi';
+
+import 'package:GIFTR/data/gift.dart';
+import 'package:GIFTR/data/http_helper.dart';
+import 'package:GIFTR/data/person.dart';
 import 'package:flutter/material.dart';
 import 'package:GIFTR/shared/screen_type.dart';
 
 class AddGiftScreen extends StatefulWidget {
-  AddGiftScreen(
-      {Key? key,
-      required this.nav,
-      required this.currentPerson,
-      required this.currentPersonName})
+  const AddGiftScreen(
+      {Key? key, required this.person, required this.manageExceptions})
       : super(key: key);
-
-  Function nav;
-  String currentPersonName; // could be empty string
-  int currentPerson; //could be zero
+  static const routeName = '/gifts/add';
+  final Function manageExceptions;
+  final Person person;
 
   @override
   State<AddGiftScreen> createState() => _AddGiftScreenState();
@@ -23,8 +24,7 @@ class _AddGiftScreenState extends State<AddGiftScreen> {
   final priceController = TextEditingController();
   //create global ref key for the form
   final _formKey = GlobalKey<FormState>();
-  //state value for user login
-  Map<String, dynamic> gift = {'name': '', 'store': '', 'price': 0.00};
+  Gift gift = Gift.create();
 
   @override
   Widget build(BuildContext context) {
@@ -34,35 +34,42 @@ class _AddGiftScreenState extends State<AddGiftScreen> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             //back to the people page using the function from main.dart
-            widget.nav(ScreenType.GIFTS);
+            _backToGifts();
           },
         ),
-        title: Text('Add Gift - ${widget.currentPersonName}'),
+        title: Text('Add Gift - ${widget.person.name}'),
         centerTitle: true,
       ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildName(),
-              SizedBox(height: 16),
-              _buildStore(),
-              SizedBox(height: 16),
-              _buildPrice(),
-              SizedBox(height: 16),
-              ElevatedButton(
-                child: Text('Save'),
-                onPressed: () {
-                  //use the API to save the new gift for the person
-                  //after confirming the save then
-                  //go to the gifts screen
-                  widget.nav(ScreenType.GIFTS);
-                },
-              ),
-            ],
-          ),
+          child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildName(),
+                  SizedBox(height: 16),
+                  _buildStore(),
+                  SizedBox(height: 16),
+                  _buildPrice(),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    child: Text('Save'),
+                    onPressed: () {
+                      //use the API to save the new gift for the person
+                      //after confirming the save then
+                      //go to the gifts screen
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        _saveGift();
+                      } else {
+                        return;
+                      }
+                    },
+                  ),
+                ],
+              )),
         ),
       ),
     );
@@ -97,7 +104,7 @@ class _AddGiftScreenState extends State<AddGiftScreen> {
       onSaved: (String? value) {
         //save the email value in the state variable
         setState(() {
-          gift['name'] = value;
+          gift.name = value!;
         });
       },
     );
@@ -122,7 +129,7 @@ class _AddGiftScreenState extends State<AddGiftScreen> {
       onSaved: (String? value) {
         //save the email value in the state variable
         setState(() {
-          gift['store'] = value;
+          gift.store.name = value!;
         });
       },
     );
@@ -147,10 +154,25 @@ class _AddGiftScreenState extends State<AddGiftScreen> {
         //save the email value in the state variable
         setState(() {
           if (value != null) {
-            gift['name'] = num.parse(value);
+            gift.price = double.parse(value);
           }
         });
       },
     );
+  }
+
+  void _saveGift() async {
+    print('wanna to save gift ${gift.name}');
+    try {
+      var networkCall = HttpHelper();
+      var result = await networkCall.saveGift(widget.person.id, gift);
+      _backToGifts(result);
+    } catch (e) {
+      widget.manageExceptions(e);
+    }
+  }
+
+  void _backToGifts([Gift? newGift]) {
+    Navigator.pop(context, newGift);
   }
 }

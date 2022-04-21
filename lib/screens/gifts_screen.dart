@@ -2,6 +2,7 @@ import 'package:GIFTR/data/gift.dart';
 import 'package:GIFTR/data/giftr_exception.dart';
 import 'package:GIFTR/data/http_helper.dart';
 import 'package:GIFTR/data/person.dart';
+import 'package:GIFTR/screens/add_gift_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:GIFTR/shared/screen_type.dart';
 import 'package:intl/intl.dart';
@@ -101,12 +102,21 @@ class _GiftsScreenState extends State<GiftsScreen> {
 
   void _navigateToAddNewGift() {
     print("want to add new gift");
+    var result = Navigator.pushNamed(context, AddGiftScreen.routeName,
+        arguments: widget.person);
+
+    () async {
+      var didAddGift = await result;
+      print('Gift added: $didAddGift');
+      if (didAddGift != null && didAddGift is Gift) {
+        setState(() {
+          gifts.add(didAddGift);
+        });
+      }
+    }();
   }
 
   void _wantToDeleteGift(Gift gift) {
-    print('delete ${gift.name}');
-    //remove from gifts with setState
-
     showDialog(
         context: context,
         builder: (_) => _buildConfirmationDialogForDeletion(gift),

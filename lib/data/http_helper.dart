@@ -53,7 +53,6 @@ class HttpHelper {
     _headers['Authorization'] = 'Bearer ${await getToken()}';
     http.Response response = await http.get(uri, headers: _headers);
     Map<String, dynamic> data = jsonDecode(response.body);
-
     return Gift.toList(data['data']['gifts']);
   }
 
@@ -64,7 +63,22 @@ class HttpHelper {
 
     Map<String, dynamic> data = jsonDecode(response.body);
     Gift deleted = Gift.fromJson(data['data']);
+
     return deleted;
+  }
+
+  Future<Gift> saveGift(String personId, Gift gift) async {
+    Uri uri = Uri.http(_domain, "$_peoplePath/$personId/gifts");
+    _headers['Authorization'] = 'Bearer ${await getToken()}';
+    http.Response response = await http.post(uri,
+        headers: _headers, body: jsonEncode(gift.toJson()));
+
+    Map<String, dynamic> data = jsonDecode(response.body);
+
+    print("data from saving gift ${data}");
+    Gift withId = Gift.fromJson(data['data']);
+
+    return withId;
   }
 
   Future<Person> savePerson(Person person) async {

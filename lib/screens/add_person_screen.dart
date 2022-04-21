@@ -15,7 +15,7 @@ class AddPersonScreen extends StatefulWidget {
 
   final Person person;
   final Function manageExceptions;
-  static String routeName = '/addPerson';
+  static const String routeName = '/addPerson';
 
   @override
   State<AddPersonScreen> createState() => _AddPersonScreenState();

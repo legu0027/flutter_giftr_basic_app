@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:GIFTR/data/giftr_exception.dart';
 import 'package:GIFTR/data/person.dart';
+import 'package:GIFTR/screens/add_gift_screen.dart';
 import 'package:GIFTR/screens/gifts_screen.dart';
 import 'package:GIFTR/screens/login_screen.dart';
 import 'package:GIFTR/screens/people_screen.dart';
@@ -47,6 +48,15 @@ class MyApp extends StatelessWidget {
               );
             });
 
+          case AddPersonScreen.routeName:
+            final person = settings.arguments as Person;
+            return MaterialPageRoute(builder: (context) {
+              return AddPersonScreen(
+                  person: person,
+                  manageExceptions: (exception) =>
+                      _manageExceptions(context, exception));
+            });
+
           case GiftsScreen.routeName:
             var person = settings.arguments as Person;
             return MaterialPageRoute(builder: (context) {
@@ -55,16 +65,15 @@ class MyApp extends StatelessWidget {
                 manageExceptions: (error) => _manageExceptions(context, error),
               );
             });
-        }
 
-        if (settings.name == AddPersonScreen.routeName) {
-          final person = settings.arguments as Person;
-          return MaterialPageRoute(builder: (context) {
-            return AddPersonScreen(
+          case AddGiftScreen.routeName:
+            var person = settings.arguments as Person;
+            return MaterialPageRoute(builder: (context) {
+              return AddGiftScreen(
                 person: person,
-                manageExceptions: (exception) =>
-                    _manageExceptions(context, exception));
-          });
+                manageExceptions: (error) => _manageExceptions(context, error),
+              );
+            });
         }
         assert(false, 'Need to implement ${settings.name}');
         return null;
