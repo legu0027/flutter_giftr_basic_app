@@ -1,10 +1,10 @@
+import 'package:GIFTR/screens/people_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../data/http_helper.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({Key? key, required this.login}) : super(key: key);
-  // Function nav;
-  Function login;
+  LoginScreen({Key? key}) : super(key: key);
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               //accept the response from the server and
                               //save the token in SharedPreferences
                               //go to the people screen
-                              widget.login(user);
+                              _executeLogin(user);
                               // widget.nav();
                             } else {
                               //form failed validation so exit
@@ -137,5 +137,27 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       },
     );
+  }
+
+  void _executeLogin(Map<String, dynamic> user) async {
+    HttpHelper helper = HttpHelper();
+    try {
+      Map<String, dynamic> result = await helper.loginUser(user);
+      if (result.containsKey('data')) {
+        String JWTtoken = result['data']['token'];
+        var pref = await SharedPreferences.getInstance();
+        pref.setString('token', result['data']['token']);
+        _navigateNext();
+      } else if (result.containsKey('errors')) {
+        throw Exception(Text(result['errors'][0]['title']));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  void _navigateNext() {
+    Navigator.pushNamed(context, PeopleScreen.routeName);
   }
 }

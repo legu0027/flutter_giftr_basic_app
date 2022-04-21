@@ -68,28 +68,7 @@ class _MainPageState extends State<MainPage> {
       case ScreenType.LOGIN:
         return _loginScreenBuilder();
       case ScreenType.PEOPLE:
-        return PeopleScreen(
-          goGifts: (int pid, String name) {
-            //need another function for going to add/edit screen
-            print('from people to gifts for person $pid');
-            setState(() {
-              currentPerson = pid;
-              currentPersonName = name;
-              currentScreen = ScreenType.GIFTS;
-            });
-          },
-          goEdit: (int pid, String name, DateTime dob) {
-            //edit the person
-            print('go to the person edit screen');
-            setState(() {
-              currentPerson = pid;
-              currentPersonName = name;
-              currentPersonDOB = dob;
-              currentScreen = ScreenType.ADDPERSON;
-            });
-          },
-          logout: () => _execLogout(),
-        );
+        return _peopleScreenBuilder();
       case ScreenType.GIFTS:
         return GiftsScreen(
             goPeople: (Enum screen) {
@@ -129,26 +108,54 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  LoginScreen _loginScreenBuilder() =>
-      LoginScreen(login: (user) => _executeLogin(user));
+  PeopleScreen _peopleScreenBuilder() {
+    // return PeopleScreen(
+    //   goGifts: (int pid, String name) {
+    //     //need another function for going to add/edit screen
+    //     print('from people to gifts for person $pid');
+    //     setState(() {
+    //       currentPerson = pid;
+    //       currentPersonName = name;
+    //       currentScreen = ScreenType.GIFTS;
+    //     });
+    //   },
+    //   goEdit: (int pid, String name, DateTime dob) {
+    //     //edit the person
+    //     print('go to the person edit screen');
+    //     setState(() {
+    //       currentPerson = pid;
+    //       currentPersonName = name;
+    //       currentPersonDOB = dob;
+    //       currentScreen = ScreenType.ADDPERSON;
+    //     });
+    //   },
+    //   logout: () => _execLogout(),
+    // );
+    return const PeopleScreen();
+  }
+
+  LoginScreen _loginScreenBuilder() => LoginScreen();
 
   void _executeLogin(Map<String, dynamic> user) async {
     HttpHelper helper = HttpHelper();
+    try {
+      Map<String, dynamic> result = await helper.loginUser(user);
+      if (result.containsKey('data')) {
+        JWTtoken = result['data']['token'];
+        isLoggedIn = true;
+        SharedPreferences prefsIntance = await SharedPreferences.getInstance();
+        prefsIntance.setString('token', result['data']['token']);
+        // setState(() => currentScreen = ScreenType.PEOPLE);
 
-    //option 1
-    Map<String, dynamic> result = await helper.loginUser(user);
-    print('result from login: $result');
-    if (result.containsKey('data')) {
-      JWTtoken = result['data']['token'];
-      isLoggedIn = true;
-      SharedPreferences prefsIntance = await SharedPreferences.getInstance();
-      prefsIntance.setString('token', result['data']['token']);
-      setState(() => currentScreen = ScreenType.PEOPLE);
-    } else if (result.containsKey('errors')) {
-      print("error in main: $result");
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => _peopleScreenBuilder()));
+      } else if (result.containsKey('errors')) {
+        throw Exception(Text(result['errors'][0]['title']));
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['errors'][0]['title'])));
-      _execLogout();
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+      // _execLogout();
     }
   }
 

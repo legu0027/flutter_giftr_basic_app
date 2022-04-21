@@ -18,10 +18,6 @@ class HttpHelper {
         await http.post(uri, headers: _headers, body: jsonEncode(user));
 
     Map<String, dynamic> data = jsonDecode(response.body);
-    print('result from network: $data');
-    if (data.containsValue("errors")) {
-      throw Exception(data["errors"][0]["title"]);
-    }
     return data;
   }
 

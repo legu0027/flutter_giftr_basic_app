@@ -6,16 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PeopleScreen extends StatefulWidget {
-  PeopleScreen(
-      {Key? key,
-      required this.logout,
-      required this.goGifts,
-      required this.goEdit})
-      : super(key: key);
+  const PeopleScreen({Key? key}) : super(key: key);
 
-  Function(int, String) goGifts;
-  Function(int, String, DateTime) goEdit;
-  Function logout;
+  static const routeName = '/people';
 
   @override
   State<PeopleScreen> createState() => _PeopleScreenState();
@@ -29,16 +22,28 @@ class _PeopleScreenState extends State<PeopleScreen> {
     Person('10', 'Dean Winchester', DateTime(1979, 1, 24)),
   });
   DateTime today = DateTime.now();
-
+  String? JWTtoken;
   @override
   void initState() {
     super.initState();
-    _peopleList();
+
+    () async {
+      var prefs = await SharedPreferences.getInstance();
+      JWTtoken = prefs.getString('token');
+      print("this is the token received: $JWTtoken");
+
+      if (JWTtoken == null) {
+        Navigator.pop(context);
+      } else {
+        _peopleList();
+      }
+    }();
   }
 
   @override
   Widget build(BuildContext context) {
     //sort the people by the month of birth
+
     people.sort((a, b) => a.dob.month.compareTo(b.dob.month));
 
     return Scaffold(
@@ -50,7 +55,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
             icon: Icon(Icons.logout),
             onPressed: () {
               //logout and return to login screen
-              widget.logout();
+              // widget.logout();
             },
           )
         ],
@@ -97,7 +102,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
         onPressed: () {
           //go to the add gift page
           DateTime now = DateTime.now();
-          widget.goEdit(0, '', now);
+          // widget.goEdit(0, '', now);
         },
       ),
     );
@@ -109,7 +114,8 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
     //If token null, user is not logged
     if (token == null) {
-      widget.logout();
+      // widget.logout();
+      Navigator.pop(context);
       return;
     }
 
@@ -120,7 +126,6 @@ class _PeopleScreenState extends State<PeopleScreen> {
       //some error has ocurred
 
       String message = '';
-
       message = result['errors'][0]['title'];
 
       ScaffoldMessenger.of(context)
