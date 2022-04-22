@@ -36,7 +36,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Giftr - People'),
+        title: Text('People'),
         centerTitle: true,
         actions: [
           IconButton(

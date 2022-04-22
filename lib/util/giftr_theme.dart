@@ -12,7 +12,7 @@ class GiftrTheme {
         //base colour scheme that can be overridden for widgets
         primary: Color.fromARGB(255, 186, 0, 179),
         onPrimary: Colors.white,
-        secondary: Color(0xFF32B095),
+        secondary: Color(0xff36c9ff),
         onSecondary: Colors.lime,
         tertiary: Colors.amber,
         onTertiary: Colors.lime,
@@ -39,15 +39,15 @@ class GiftrTheme {
         headline1: TextStyle(
           // letterSpacing: ,
           // fontFamily: ,
-          fontSize: 60,
-          fontWeight: FontWeight.w700,
+          fontSize: 50,
+          fontWeight: FontWeight.w600,
         ),
         headline2: TextStyle(
-          fontSize: 48,
+          fontSize: 45,
           fontWeight: FontWeight.w500,
         ),
         headline3: TextStyle(
-          fontSize: 48,
+          fontSize: 45,
           fontWeight: FontWeight.w300,
           fontFamily: 'SendFlowers',
         ),
@@ -95,7 +95,7 @@ class GiftrTheme {
       shadowColor: Colors.grey[600],
 
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color.fromARGB(255, 186, 0, 179),
+        backgroundColor: Color.fromARGB(255, 205, 13, 198),
         foregroundColor: Colors.white,
         titleTextStyle: TextStyle(
           fontFamily: 'SendFlowers',

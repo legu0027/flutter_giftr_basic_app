@@ -58,46 +58,51 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              _buildName(),
-              SizedBox(height: 16),
-              _buildDOB(),
-              SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    child: Text('Save'),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        _savePerson();
-                      } else {
-                        //form failed validation so exit
-                        return;
-                      }
-                    },
-                  ),
-                  SizedBox(width: 16.0),
-                  if (person?.id.isNotEmpty ?? false)
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.red,
-                      ),
-                      child: Text('Delete'),
-                      onPressed: () {
-                        _wantToDeletePerson();
-                      },
-                    ),
-                ],
-              ),
-            ]),
-          ),
-        ),
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Image.asset('images/giftr.png', height: 170, width: 150),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildName(),
+                        SizedBox(height: 16),
+                        _buildDOB(),
+                        SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              child: Text('Save'),
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  _formKey.currentState!.save();
+                                  _savePerson();
+                                } else {
+                                  //form failed validation so exit
+                                  return;
+                                }
+                              },
+                            ),
+                            SizedBox(width: 16.0),
+                            if (person?.id.isNotEmpty ?? false)
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.red,
+                                ),
+                                child: Text('Delete'),
+                                onPressed: () {
+                                  _wantToDeletePerson();
+                                },
+                              ),
+                          ],
+                        ),
+                      ]),
+                ),
+              ],
+            )),
       ),
     );
   }
