@@ -32,50 +32,57 @@ class _LoginScreenState extends State<LoginScreen> {
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildEmail(),
-                    SizedBox(height: 16),
-                    _buildPassword(),
-                    SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          child: Text('Login'),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _formKey.currentState!.save();
-                              _executeLogin();
-                            } else {
-                              //form failed validation so exit
-                              return;
-                            }
-                          },
-                        ),
-                        SizedBox(width: 16.0),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.purple,
+            child: Column(children: [
+              Image.asset(
+                'images/gift.png',
+                height: 180,
+                width: 160,
+              ),
+              Form(
+                key: _formKey,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildEmail(),
+                      SizedBox(height: 16),
+                      _buildPassword(),
+                      SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            child: Text('Login'),
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                _formKey.currentState!.save();
+                                _executeLogin();
+                              } else {
+                                //form failed validation so exit
+                                return;
+                              }
+                            },
                           ),
-                          child: Text('Sign Up'),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _formKey.currentState!.save();
-                              _signUp();
-                            } else {
-                              //form failed validation so exit
-                              return;
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ]),
-            ),
+                          SizedBox(width: 16.0),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.purple,
+                            ),
+                            child: Text('Sign Up'),
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                _formKey.currentState!.save();
+                                _signUp();
+                              } else {
+                                //form failed validation so exit
+                                return;
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ]),
+              ),
+            ]),
           ),
         ));
   }

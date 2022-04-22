@@ -36,7 +36,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Giftr - People'),
+        title: Text('People'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -102,7 +102,10 @@ class _PeopleScreenState extends State<PeopleScreen> {
   }
 
   void _showPeople(List<Person> list) async {
-    setState(() => people = list);
+    setState(() {
+      list.sort((a, b) => a.dob.month.compareTo(b.dob.month));
+      people = list;
+    });
   }
 
   void _goAdd() {
