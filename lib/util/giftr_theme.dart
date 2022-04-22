@@ -133,7 +133,7 @@ class GiftrTheme {
       ),
 
       listTileTheme: const ListTileThemeData(
-        tileColor: Color(0xFF32B095),
+        tileColor: Colors.white,
         // textColor: Colors.black, //sets both title and subtitle
         style: ListTileStyle.list,
         //ListTileStyle.list means use subtitle1 for the title
