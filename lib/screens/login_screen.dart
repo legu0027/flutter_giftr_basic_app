@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(width: 16.0),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.purple,
+                            primary: Theme.of(context).primaryColor,
                           ),
                           child: Text('Sign Up'),
                           onPressed: () {

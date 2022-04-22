@@ -7,6 +7,7 @@ import 'package:GIFTR/screens/add_gift_screen.dart';
 import 'package:GIFTR/screens/gifts_screen.dart';
 import 'package:GIFTR/screens/login_screen.dart';
 import 'package:GIFTR/screens/people_screen.dart';
+import 'package:GIFTR/util/giftr_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:GIFTR/screens/add_person_screen.dart';
 
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
     //put the things that are the same on every page here...
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: GiftrTheme.buildDark(),
       // home: MainPage(),
       initialRoute: LoginScreen.routeName,
       // routes: {
