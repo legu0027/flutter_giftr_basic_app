@@ -12,10 +12,11 @@ class Gift {
 
   static Gift fromJson(Map<String, dynamic> map) {
     if (map['store'] == null) {
-      return Gift(map['_id'], map['name'], map['price'], _Store.empty());
+      return Gift(
+          map['_id'], map['name'], map['price'].toDouble(), _Store.empty());
     }
-    return Gift(
-        map['_id'], map['name'], map['price'], _Store.fromJson(map['store']));
+    return Gift(map['_id'], map['name'], map['price'].toDouble(),
+        _Store.fromJson(map['store']));
   }
 
   Map<String, dynamic> toJson() =>

@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
                               _formKey.currentState!.save();
-                              _executeLogin(user);
+                              _executeLogin();
                             } else {
                               //form failed validation so exit
                               return;
@@ -63,7 +63,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: Text('Sign Up'),
                           onPressed: () {
-                            //validate then call the API to signup
+                            if (_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
+                              _signUp();
+                            } else {
+                              //form failed validation so exit
+                              return;
+                            }
                           },
                         ),
                       ],
@@ -137,10 +143,24 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _executeLogin(Map<String, dynamic> user) async {
+  void _executeLogin() async {
     HttpHelper helper = HttpHelper();
     try {
       bool wasSuccesful = await helper.loginUser(user);
+      if (wasSuccesful) {
+        _navigateNext();
+      }
+    } catch (e) {
+      widget.manageExceptions(e);
+    }
+  }
+
+  void _signUp() async {
+    print("signing up");
+    try {
+      HttpHelper helper = HttpHelper();
+      bool wasSuccesful = await helper.createUser(user);
+      print("was signed up? $wasSuccesful");
       if (wasSuccesful) {
         _navigateNext();
       }

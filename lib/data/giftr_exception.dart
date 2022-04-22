@@ -1,7 +1,4 @@
-enum GiftrException {
-  INVALID_TOKEN,
-  INCORRECT_USERNAME_PASSWORD,
-}
+enum GiftrException { INVALID_TOKEN, INCORRECT_USERNAME_PASSWORD, LOGOUT }
 
 extension GiftrExceptionExtension on GiftrException {
   String get message {

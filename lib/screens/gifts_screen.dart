@@ -35,6 +35,7 @@ class _GiftsScreenState extends State<GiftsScreen> {
     try {
       HttpHelper networkCall = HttpHelper();
       var result = await networkCall.grabGifts(widget.person.id);
+
       setState(() {
         gifts = result;
       });
@@ -61,7 +62,7 @@ class _GiftsScreenState extends State<GiftsScreen> {
             icon: Icon(Icons.logout),
             onPressed: () {
               //logout and return to login screen
-              widget.manageExceptions(GiftrException.INVALID_TOKEN);
+              widget.manageExceptions(GiftrException.LOGOUT);
             },
           )
         ],

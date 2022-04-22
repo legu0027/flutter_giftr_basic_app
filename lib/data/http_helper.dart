@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class HttpHelper {
   final String _domain = '192.168.2.67:3030';
+  final String _signupPath = 'auth/users';
   final String _logUserPath = 'auth/tokens';
   final String _validateTokenPath = 'auth/users/me';
   final String _peoplePath = 'api/people';
@@ -17,6 +18,24 @@ class HttpHelper {
     'Content-Type': 'application/json; charset=UTF-8',
     'x-api-key': 'legu0027',
   };
+
+  Future<bool> createUser(Map<String, dynamic> user) async {
+    user['firstName'] = 'Fernando';
+    user['lastName'] = 'Leguia';
+    Uri uri = Uri.http(_domain, _signupPath);
+    http.Response response =
+        await http.post(uri, headers: _headers, body: jsonEncode(user));
+
+    Map<String, dynamic> data = jsonDecode(response.body);
+
+    print("response from signup: $data with user: $user");
+
+    if (data.containsKey('data')) {
+      return loginUser(user);
+    }
+
+    return false;
+  }
 
   Future<bool> loginUser(Map<String, dynamic> user) async {
     Uri uri = Uri.http(_domain, _logUserPath);
