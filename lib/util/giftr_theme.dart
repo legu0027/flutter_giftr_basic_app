@@ -10,7 +10,7 @@ class GiftrTheme {
     final ThemeData darkBase = ThemeData.from(
       colorScheme: const ColorScheme(
         //base colour scheme that can be overridden for widgets
-        primary: Color(0xFF004E8D),
+        primary: Color.fromARGB(255, 186, 0, 179),
         onPrimary: Colors.white,
         secondary: Color(0xFF32B095),
         onSecondary: Colors.lime,
@@ -95,7 +95,7 @@ class GiftrTheme {
       shadowColor: Colors.grey[600],
 
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF004E8D),
+        backgroundColor: Color.fromARGB(255, 186, 0, 179),
         foregroundColor: Colors.white,
         titleTextStyle: TextStyle(
           fontFamily: 'SendFlowers',
@@ -119,7 +119,7 @@ class GiftrTheme {
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF32B095)),
+          backgroundColor: MaterialStateProperty.all<Color>(Color(0xff36c9ff)),
 
           foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
           elevation: MaterialStateProperty.all(10), //for all ElevatedButtons

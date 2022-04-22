@@ -32,43 +32,52 @@ class _LoginScreenState extends State<LoginScreen> {
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildEmail(),
-                    SizedBox(height: 16),
-                    _buildPassword(),
-                    SizedBox(height: 16),
-                    Row(
+            child: Column(
+              children: [
+                Image.asset(
+                  'images/gift.png',
+                  height: 180,
+                  width: 160,
+                ),
+                Form(
+                  key: _formKey,
+                  child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ElevatedButton(
-                          child: Text('Login'),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _formKey.currentState!.save();
-                              _executeLogin(user);
-                            } else {
-                              //form failed validation so exit
-                              return;
-                            }
-                          },
+                        _buildEmail(),
+                        SizedBox(height: 16),
+                        _buildPassword(),
+                        SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              child: Text('Login'),
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  _formKey.currentState!.save();
+                                  _executeLogin(user);
+                                } else {
+                                  //form failed validation so exit
+                                  return;
+                                }
+                              },
+                            ),
+                            SizedBox(width: 16.0),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: Theme.of(context).primaryColor,
+                              ),
+                              child: Text('Sign Up'),
+                              onPressed: () {
+                                //validate then call the API to signup
+                              },
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 16.0),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Theme.of(context).primaryColor,
-                          ),
-                          child: Text('Sign Up'),
-                          onPressed: () {
-                            //validate then call the API to signup
-                          },
-                        ),
-                      ],
-                    ),
-                  ]),
+                      ]),
+                )
+              ],
             ),
           ),
         ));
