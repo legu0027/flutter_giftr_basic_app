@@ -32,53 +32,49 @@ class _LoginScreenState extends State<LoginScreen> {
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Image.asset(
-                  'images/gift.png',
-                  height: 180,
-                  width: 160,
+            child: Column(children: [
+              Image.asset(
+                'images/gift.png',
+                height: 180,
+                width: 160,
+              ),
+              Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      child: Text('Login'),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          _executeLogin();
+                        } else {
+                          //form failed validation so exit
+                          return;
+                        }
+                      },
+                    ),
+                    SizedBox(width: 16.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.purple,
+                      ),
+                      child: Text('Sign Up'),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          _signUp();
+                        } else {
+                          //form failed validation so exit
+                          return;
+                        }
+                      },
+                    ),
+                  ],
                 ),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildEmail(),
-                        SizedBox(height: 16),
-                        _buildPassword(),
-                        SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              child: Text('Login'),
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  _formKey.currentState!.save();
-                                  _executeLogin(user);
-                                } else {
-                                  //form failed validation so exit
-                                  return;
-                                }
-                              },
-                            ),
-                            SizedBox(width: 16.0),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                primary: Theme.of(context).primaryColor,
-                              ),
-                              child: Text('Sign Up'),
-                              onPressed: () {
-                                //validate then call the API to signup
-                              },
-                            ),
-                          ],
-                        ),
-                      ]),
-                )
-              ],
-            ),
+              ),
+            ]),
           ),
         ));
   }
@@ -146,10 +142,24 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _executeLogin(Map<String, dynamic> user) async {
+  void _executeLogin() async {
     HttpHelper helper = HttpHelper();
     try {
       bool wasSuccesful = await helper.loginUser(user);
+      if (wasSuccesful) {
+        _navigateNext();
+      }
+    } catch (e) {
+      widget.manageExceptions(e);
+    }
+  }
+
+  void _signUp() async {
+    print("signing up");
+    try {
+      HttpHelper helper = HttpHelper();
+      bool wasSuccesful = await helper.createUser(user);
+      print("was signed up? $wasSuccesful");
       if (wasSuccesful) {
         _navigateNext();
       }

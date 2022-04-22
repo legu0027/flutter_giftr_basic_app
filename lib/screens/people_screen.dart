@@ -42,7 +42,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              widget.manageExceptions(GiftrException.INVALID_TOKEN);
+              widget.manageExceptions(GiftrException.LOGOUT);
             },
           )
         ],

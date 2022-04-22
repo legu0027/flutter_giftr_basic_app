@@ -97,6 +97,8 @@ class _AddGiftScreenState extends State<AddGiftScreen> {
         if (value == null || value.isEmpty) {
           return 'Please enter something';
           //becomes the new errorText value
+        } else if (value.length < 4) {
+          return 'Name has to be longer than 4 characters';
         }
         return null; //means all is good
       },

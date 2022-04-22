@@ -93,7 +93,11 @@ class MyApp extends StatelessWidget {
     Text message = Text("Unknown error ocurred");
 
     if (e is GiftrException) {
-      // e.shouldLogout ? _logout(context, e) : null;
+      if (e == GiftrException.LOGOUT) {
+        _logout(context);
+        return;
+      }
+      e.shouldLogout ? _logout(context, e) : null;
       message = Text(e.message);
     } else if (e is SocketException) {
       message = Text(e.message);
